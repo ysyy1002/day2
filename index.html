@@ -91,6 +91,25 @@
     button:hover { background: #e8590c; }
     #likeMsg { text-align: center; margin: 0.5rem 0 0; font-size: 0.9rem; }
 
+    .search { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
+    .search input { flex: 1; padding: 0.6rem 0.8rem; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
+    .search button { width: auto; padding: 0.6rem 1.2rem; }
+    #imgStatus { min-height: 1.4em; margin: 0.3rem 0; font-size: 0.9rem; color: #555; }
+    .slider { display: none; position: relative; background: #000; border-radius: 10px; overflow: hidden; aspect-ratio: 4 / 3; }
+    .slider.on { display: block; }
+    .track { display: flex; height: 100%; transition: transform 0.4s ease; }
+    .slide { min-width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+    .slide img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .slide span { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.4rem 0.8rem; background: rgba(0,0,0,0.55); color: #fff; font-size: 0.85rem; }
+    .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; padding: 0; border-radius: 50%; background: rgba(255,255,255,0.85); color: #000; font-size: 1.4rem; }
+    .nav:hover { background: #fff; }
+    .nav.prev { left: 8px; } .nav.next { right: 8px; }
+    .counter { position: absolute; top: 8px; right: 10px; padding: 0 0.6rem; border-radius: 12px; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.85rem; }
+    .pager { display: none; align-items: center; justify-content: center; gap: 0.8rem; margin-top: 0.6rem; }
+    .pager.on { display: flex; }
+    .pager button { width: auto; padding: 0.4rem 0.9rem; }
+    .pager button:disabled { background: #c9c9c9; cursor: default; }
+
     footer {
       margin-top: 1rem;
       background: #1d6b4f;
@@ -178,6 +197,26 @@
             <strong>💡 고르는 팁</strong> 껍질이 얇고 단단하며 크기가 중간 정도인 것이 달고 맛있습니다.
           </div>
         </article>
+
+        <section id="gallery">
+          <h2>🖼 이미지 검색 슬라이드</h2>
+          <form class="search" id="searchForm">
+            <input id="query" type="text" placeholder="검색어 (예: 제주 귤, 한라봉, 흑돼지)" required>
+            <button type="submit" id="searchBtn">검색</button>
+          </form>
+          <div id="imgStatus"></div>
+          <div class="slider" id="slider">
+            <div class="track" id="track"></div>
+            <div class="counter" id="counter"></div>
+            <button class="nav prev" id="prev" type="button" aria-label="이전">‹</button>
+            <button class="nav next" id="next" type="button" aria-label="다음">›</button>
+          </div>
+          <div class="pager" id="pager">
+            <button id="prevPage" type="button">◀ 이전 10개</button>
+            <span id="pageInfo"></span>
+            <button id="nextPage" type="button">다음 10개 ▶</button>
+          </div>
+        </section>
       </div>
 
       <aside id="season">
@@ -212,6 +251,74 @@
       likes++;
       document.getElementById('likeMsg').textContent = '좋아요 ' + likes + '개';
     });
+
+    // ---- Pixabay 이미지 슬라이드 (키는 서버 /api/pixabay 가 환경변수로 처리) ----
+    const PER_PAGE = 10;
+    const $ = id => document.getElementById(id);
+    let page = 1, total = 0, index = 0, count = 0, lastQuery = '';
+
+    $('searchForm').addEventListener('submit', e => { e.preventDefault(); page = 1; load(); });
+    $('prevPage').onclick = () => { if (page > 1) { page--; load(); } };
+    $('nextPage').onclick = () => { if (page * PER_PAGE < total) { page++; load(); } };
+    $('prev').onclick = () => go(index - 1);
+    $('next').onclick = () => go(index + 1);
+
+    async function load() {
+      const q = $('query').value.trim();
+      if (!q) return;
+      lastQuery = q;
+      $('searchBtn').disabled = true;
+      $('imgStatus').textContent = '불러오는 중...';
+      try {
+        const res = await fetch('/api/pixabay?' + new URLSearchParams({ q, page }));
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || '요청 실패 (' + res.status + ')');
+        total = data.total;
+        render(data.hits);
+      } catch (err) {
+        $('imgStatus').textContent = '오류: ' + err.message;
+      } finally {
+        $('searchBtn').disabled = false;
+      }
+    }
+
+    function render(hits) {
+      const track = $('track');
+      track.innerHTML = '';
+      count = hits.length;
+      if (!count) {
+        $('slider').classList.remove('on');
+        $('pager').classList.remove('on');
+        $('imgStatus').textContent = '"' + lastQuery + '" 검색 결과가 없습니다.';
+        return;
+      }
+      hits.forEach(h => {
+        const s = document.createElement('div');
+        s.className = 'slide';
+        const img = document.createElement('img');
+        img.src = h.url;
+        img.alt = h.tags;
+        const cap = document.createElement('span');
+        cap.textContent = h.tags + ' · by ' + h.user;
+        s.append(img, cap);
+        track.append(s);
+      });
+      $('slider').classList.add('on');
+      $('pager').classList.add('on');
+      const start = (page - 1) * PER_PAGE;
+      $('imgStatus').textContent = '"' + lastQuery + '" 총 ' + total + '장 중 ' + (start + 1) + '~' + (start + count) + '번째 (Pixabay 제공)';
+      $('pageInfo').textContent = page + ' / ' + Math.ceil(total / PER_PAGE);
+      $('prevPage').disabled = page === 1;
+      $('nextPage').disabled = page * PER_PAGE >= total;
+      go(0);
+    }
+
+    function go(i) {
+      if (!count) return;
+      index = (i + count) % count;
+      $('track').style.transform = 'translateX(-' + index * 100 + '%)';
+      $('counter').textContent = (index + 1) + ' / ' + count;
+    }
   </script>
 </body>
 </html>
