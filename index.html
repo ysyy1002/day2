@@ -120,9 +120,56 @@
       font-size: 0.9rem;
     }
 
-    @media (max-width: 720px) {
+    /* ---- 반응형: 화면 너비에 따라 PC / 모바일 자동 전환 (기준 800px) ---- */
+    html { -webkit-text-size-adjust: 100%; }
+    img { max-width: 100%; }
+    .wrap { padding-bottom: 5rem; }              /* 채팅 버튼이 푸터를 가리지 않도록 */
+    header h1 { font-size: clamp(1.5rem, 5vw, 2.2rem); }
+    .layout { grid-template-columns: minmax(0, 1fr) 260px; }
+    nav { position: sticky; top: 0; z-index: 20; }
+
+    /* PC (801px 이상): 본문 + 오른쪽 사이드, 특산물 카드는 폭에 맞춰 자동 열 수 */
+    @media (min-width: 801px) {
+      .grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+      aside { position: sticky; top: 4.5rem; }
+    }
+
+    /* 모바일 (800px 이하): 한 줄로 쌓기 */
+    @media (max-width: 800px) {
       .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      .wrap { padding: 0 0.7rem 5rem; }
+      header { padding: 1.4rem 0.8rem; }
+      section, article, aside { padding: 1rem; }
       .grid { grid-template-columns: 1fr; }
+      nav ul { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; gap: 1.2rem; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+      nav a { display: inline-block; padding: 0.3rem 0; }
+      button, .search input { min-height: 44px; }   /* 터치하기 쉬운 크기 */
+      .slider { aspect-ratio: 1 / 1; }
+      .nav { width: 38px; height: 38px; }
+    }
+    /* reactive.html 실행용 큰 원형 버튼 + 전체 화면 보기 */
+    #reactiveBtn {
+      position: fixed; left: 20px; bottom: 20px; z-index: 50;
+      width: 96px; height: 96px; padding: 0; border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; font-size: 0.85rem; font-weight: bold; line-height: 1.2;
+      background: #1f3a5f; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      transition: transform 0.15s;
+    }
+    #reactiveBtn:hover { background: #2c5282; transform: scale(1.06); }
+    #reactiveBtn .big { font-size: 2rem; line-height: 1; }
+    #reactiveView {
+      display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.6);
+      flex-direction: column;
+    }
+    #reactiveView.open { display: flex; }
+    #reactiveView .bar { display: flex; justify-content: flex-end; padding: 8px 12px; }
+    #reactiveView .bar button { width: auto; padding: 0.4rem 1rem; min-height: 0; background: #fff; color: #1f3a5f; font-weight: bold; }
+    #reactiveView iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+    @media (max-width: 800px) {
+      #reactiveBtn { width: 80px; height: 80px; left: 12px; bottom: 12px; font-size: 0.75rem; }
+      #reactiveBtn .big { font-size: 1.7rem; }
     }
     /* 에이전트 채팅 위젯 */
     #chatFab {
@@ -138,6 +185,14 @@
       box-shadow: 0 6px 24px rgba(0,0,0,0.35);
     }
     #chatPanel.open { display: block; }
+    /* 모바일: 채팅을 거의 전체 화면으로 */
+    @media (max-width: 800px) {
+      #chatFab { right: 12px; bottom: 12px; padding: 0.7rem 1rem; min-height: 44px; }
+      #chatPanel { right: 0; left: 0; bottom: 0; top: 52px; width: 100%; max-width: none; height: auto; max-height: none; border-radius: 0; z-index: 40; }
+      #chatFab { z-index: 60; }
+      body.chat-open { overflow: hidden; }
+      body.chat-open #chatFab { top: 8px; bottom: auto; right: 8px; padding: 0.4rem 0.8rem; min-height: 36px; font-size: 0.9rem; }
+    }
     #chatPanel iframe { width: 100%; height: 100%; border: 0; }
   </style>
 </head>
@@ -257,11 +312,52 @@
     <footer>
       <p>🍊 제주 특산물 이야기 · 제주특별자치도</p>
       <p>&copy; 2026 Jeju Specialty. 실제 판매처는 별도로 확인해 주세요.</p>
+      <p id="deviceInfo" style="opacity:.7;font-size:.8rem"></p>
     </footer>
+  </div>
+
+  <button id="reactiveBtn" aria-label="반응형 카테고리 메뉴 열기"><span class="big">🧭</span>카테고리</button>
+  <div id="reactiveView">
+    <div class="bar"><button id="reactiveClose">✖ 닫기</button></div>
   </div>
 
   <button id="chatFab">💬 에이전트와 채팅</button>
   <div id="chatPanel"></div>
+
+  <script>
+    // 창 크기가 바뀌면(창 조절, 폰 회전 등) 실시간으로 PC/모바일 모드를 갱신한다
+    const mobileMQ = window.matchMedia('(max-width: 800px)');
+    function applyDevice() {
+      const mode = mobileMQ.matches ? 'mobile' : 'pc';
+      document.documentElement.dataset.device = mode;
+      document.getElementById('deviceInfo').textContent =
+        '현재 화면: ' + (mode === 'mobile' ? '📱 모바일' : '🖥 PC') + ' 레이아웃 (' + window.innerWidth + 'px)';
+    }
+    mobileMQ.addEventListener('change', applyDevice);
+    window.addEventListener('resize', applyDevice);
+    applyDevice();
+  </script>
+
+  <script>
+    // 큰 원형 버튼을 누르면 reactive.html 을 전체 화면으로 실행, 닫기로 돌아온다
+    const reactiveView = document.getElementById('reactiveView');
+    document.getElementById('reactiveBtn').addEventListener('click', () => {
+      if (!reactiveView.querySelector('iframe')) {
+        const f = document.createElement('iframe');
+        f.src = 'reactive.html';
+        f.title = '반응형 카테고리 메뉴';
+        reactiveView.append(f);
+      }
+      reactiveView.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+    function closeReactive() {
+      reactiveView.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('reactiveClose').addEventListener('click', closeReactive);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeReactive(); });
+  </script>
 
   <script>
     // 버튼을 누르면 agent.html 을 불러와 채팅 화면을 열고, 다시 누르면 닫는다
@@ -275,6 +371,7 @@
         chatPanel.append(f);
       }
       const open = chatPanel.classList.toggle('open');
+      document.body.classList.toggle('chat-open', open);
       chatFab.textContent = open ? '✖ 채팅 닫기' : '💬 에이전트와 채팅';
     });
   </script>
