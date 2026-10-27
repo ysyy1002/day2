@@ -3,37 +3,255 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>카운터</title>
+  <title>내 취향 카드 - 부품 지도</title>
   <style>
+    * { box-sizing: border-box; }
     body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f0f2f5;
+      font-family: sans-serif;
+      color: #222;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 1.25rem 1.5rem;
+    }
+    header.card { text-align: center; }
+    header h1 { margin: 0 0 0.25rem; }
+    header p { margin: 0; color: #666; }
+    nav.card ul {
+      list-style: none;
       margin: 0;
-      font-family: sans-serif;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
     }
-    #count {
-      font-size: 4rem;
-      margin-bottom: 1rem;
+    nav a {
+      text-decoration: none;
+      color: #3b6fe0;
+      font-weight: bold;
     }
+    nav a:hover { text-decoration: underline; }
+    main.card h2 { margin-top: 0; }
+    .taste-list { padding-left: 1.2rem; line-height: 1.8; }
+    .counter { text-align: center; margin-top: 1.5rem; }
+    #count { font-size: 3rem; margin-bottom: 0.5rem; }
     button {
-      font-size: 1.5rem;
-      padding: 0.5rem 1.5rem;
+      font-size: 1.2rem;
+      padding: 0.4rem 1.2rem;
       cursor: pointer;
     }
+    footer.card { text-align: center; color: #888; font-size: 0.9rem; }
+    /* ---- 부품 지도 전용 스타일 ---- */
+    .part { position: relative; outline: 2px dashed var(--c); outline-offset: 3px; }
+    .tag {
+      position: absolute;
+      top: -11px;
+      left: -4px;
+      background: var(--c);
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 1;
+      padding: 3px 6px;
+      border-radius: 4px;
+      z-index: 5;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    li.part { outline-offset: 0; }
+    li.part .tag { display: none; }
+    ol.part, ul.part { margin-top: 1.2rem; }
+    #legend {
+      width: 100%;
+      max-width: 640px;
+      background: #fffbe6;
+      border: 1px solid #e6d98a;
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+    #legend .dot { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 4px; vertical-align: middle; }
   </style>
 </head>
 <body>
-  <div id="count">0</div>
-  <button id="btn">+2</button>
+  <header class="card">
+    <h1>내 취향 카드</h1>
+    <p>내가 좋아하는 것들을 모아봤어요</p>
+  </header>
+
+  <nav class="card">
+    <ul>
+      <li><a href="#home">홈</a></li>
+      <li><a href="#taste">취향</a></li>
+      <li><a href="#counter">좋아요</a></li>
+    </ul>
+  </nav>
+
+  <main class="card" id="home">
+    <h2 id="taste">제주대학교 홍보</h2>
+    <ol class="taste-list">
+      <li>제주대학교, 한라산과 바다 사이에서 미래를 설계합니다.</li>
+      <li>자연이 가르치고 사람이 이끄는 대학, 제주대학교입니다.</li>
+      <li>제주의 푸른 바람처럼 시원한 배움이 시작됩니다.</li>
+      <li>세계가 주목하는 청정 제주에서 꿈을 키우세요.</li>
+      <li>지역과 함께 성장하는 국립대학, 제주대학교.</li>
+      <li>당신의 가능성을 제주에서 활짝 피워 보세요.</li>
+      <li>섬이라서 더 넓게 생각하는 대학입니다.</li>
+      <li>한라산의 기상을 닮은 도전 정신을 길러 드립니다.</li>
+      <li>바다처럼 깊은 학문, 하늘처럼 높은 이상을 추구합니다.</li>
+      <li>제주의 역사와 문화를 품은 배움터입니다.</li>
+      <li>학생 한 명 한 명을 소중히 여기는 따뜻한 캠퍼스입니다.</li>
+      <li>교수님과 가까운 거리에서 질문하고 토론하는 수업이 있습니다.</li>
+      <li>이론과 현장을 함께 배우는 실용적인 교육을 지향합니다.</li>
+      <li>융합과 창의가 자라나는 열린 학문 공동체입니다.</li>
+      <li>제주의 미래 산업을 이끌 인재를 키웁니다.</li>
+      <li>관광, 해양, 농업, 에너지 등 제주 특색의 분야를 깊이 있게 배웁니다.</li>
+      <li>청정 에너지와 탄소 중립 시대를 준비하는 대학입니다.</li>
+      <li>바다를 연구하고 바다에서 배우는 해양 교육이 있습니다.</li>
+      <li>아열대 환경을 살린 특화 농업 연구를 만나 보세요.</li>
+      <li>의학과 보건 분야에서 지역 건강을 책임질 전문가를 양성합니다.</li>
+      <li>사범대학에서 미래 교육을 이끌 선생님을 길러 냅니다.</li>
+      <li>인문학의 깊이로 삶의 방향을 찾는 시간을 선물합니다.</li>
+      <li>사회과학으로 세상을 읽는 눈을 키워 드립니다.</li>
+      <li>공학과 정보 기술로 새로운 가치를 만들어 갑니다.</li>
+      <li>예술과 체육이 어우러진 균형 잡힌 성장을 응원합니다.</li>
+      <li>배움의 시작부터 졸업 이후까지 함께하는 진로 지원이 있습니다.</li>
+      <li>취업과 창업을 돕는 맞춤형 프로그램이 준비되어 있습니다.</li>
+      <li>아이디어가 사업이 되는 창업 문화를 만들어 갑니다.</li>
+      <li>실패해도 괜찮은 도전의 캠퍼스입니다.</li>
+      <li>함께 고민하면 길이 보이는 멘토링 문화가 있습니다.</li>
+      <li>동아리 활동으로 대학 생활이 더욱 풍성해집니다.</li>
+      <li>봄에는 벚꽃, 여름에는 푸른 숲이 반겨 주는 캠퍼스입니다.</li>
+      <li>가을 단풍과 겨울 한라산 설경을 창밖으로 만나 보세요.</li>
+      <li>사계절이 모두 아름다운 교정에서 청춘을 기록하세요.</li>
+      <li>산책하다 만나는 풍경이 곧 영감이 됩니다.</li>
+      <li>도서관에서 시작된 작은 호기심이 큰 연구로 이어집니다.</li>
+      <li>밤늦도록 불이 켜진 열람실, 그 열정을 응원합니다.</li>
+      <li>최신 실험 실습 환경에서 직접 해 보며 배웁니다.</li>
+      <li>연구하는 대학, 연구로 사회에 기여하는 대학입니다.</li>
+      <li>학부생도 연구에 참여할 수 있는 기회를 열어 둡니다.</li>
+      <li>지역 문제를 직접 해결해 보는 프로젝트 수업이 있습니다.</li>
+      <li>제주도민과 함께 호흡하는 대학이 되겠습니다.</li>
+      <li>지역 사회와의 협력으로 상생의 가치를 실천합니다.</li>
+      <li>평생 배움의 문을 누구에게나 열어 둡니다.</li>
+      <li>세계로 향하는 교환학생과 국제 교류 프로그램이 있습니다.</li>
+      <li>다양한 나라의 친구들과 어울리는 글로벌 캠퍼스입니다.</li>
+      <li>언어의 벽을 넘어 문화를 나누는 경험을 드립니다.</li>
+      <li>제주에서 세계로, 세계에서 다시 제주로 이어지는 배움입니다.</li>
+      <li>해외 대학과의 교류로 시야를 넓혀 보세요.</li>
+      <li>글로벌 감각을 갖춘 지역 인재를 키웁니다.</li>
+      <li>장학 제도로 배움의 기회를 넓히고자 노력합니다.</li>
+      <li>경제적 부담보다 배움의 열정이 앞서는 대학을 꿈꿉니다.</li>
+      <li>기숙사에서 친구와 함께하는 일상이 추억이 됩니다.</li>
+      <li>학생 복지와 안전을 최우선으로 생각합니다.</li>
+      <li>상담과 지원으로 마음까지 돌보는 캠퍼스입니다.</li>
+      <li>누구도 소외되지 않는 포용의 대학을 만들어 갑니다.</li>
+      <li>다양성을 존중할 때 대학은 더 단단해집니다.</li>
+      <li>성별, 출신, 배경을 넘어 모두가 환영받는 공간입니다.</li>
+      <li>서로의 다름이 새로운 아이디어의 씨앗이 됩니다.</li>
+      <li>토론이 자유로운 수업, 생각이 자라는 강의실입니다.</li>
+      <li>정답보다 질문을 소중히 여기는 교육을 합니다.</li>
+      <li>스스로 생각하고 스스로 선택하는 힘을 길러 드립니다.</li>
+      <li>비판적 사고와 공감 능력을 함께 갖춘 인재를 키웁니다.</li>
+      <li>전공의 깊이와 교양의 폭을 두루 갖추게 돕습니다.</li>
+      <li>융합 전공으로 나만의 진로를 설계해 보세요.</li>
+      <li>디지털 전환 시대에 필요한 역량을 미리 준비합니다.</li>
+      <li>인공지능과 데이터, 새로운 기술을 배우는 기회가 열려 있습니다.</li>
+      <li>스마트 기술로 제주의 문제를 풀어 가는 연구가 진행됩니다.</li>
+      <li>지속 가능한 제주를 위한 연구와 교육에 힘씁니다.</li>
+      <li>환경을 지키는 일이 곧 미래를 지키는 일이라 믿습니다.</li>
+      <li>곶자왈과 오름, 해안 생태를 연구실 밖에서 직접 배웁니다.</li>
+      <li>제주 생태계의 가치를 세계에 알리는 연구를 응원합니다.</li>
+      <li>해녀 문화와 제주어 등 소중한 문화유산을 이어 갑니다.</li>
+      <li>전통을 지키고 새로움을 더하는 문화 교육을 지향합니다.</li>
+      <li>제주 4·3의 아픔을 기억하며 평화의 가치를 배웁니다.</li>
+      <li>평화와 인권을 생각하는 시민 의식을 길러 드립니다.</li>
+      <li>배움을 나눔으로 실천하는 봉사 활동이 활발합니다.</li>
+      <li>작은 나눔이 모여 큰 변화를 만든다고 믿습니다.</li>
+      <li>선배와 후배가 서로 이끌어 주는 따뜻한 문화가 있습니다.</li>
+      <li>졸업생 네트워크가 든든한 응원군이 되어 줍니다.</li>
+      <li>사회 곳곳에서 활약하는 제주대 동문이 자랑스럽습니다.</li>
+      <li>졸업 후에도 모교와 함께 성장하는 평생 동반자입니다.</li>
+      <li>축제의 밤, 캠퍼스는 청춘의 노래로 가득합니다.</li>
+      <li>스포츠와 문화 행사로 활기가 넘치는 학교입니다.</li>
+      <li>공부도 열심히, 쉼도 알차게, 균형 있는 대학 생활을 응원합니다.</li>
+      <li>제주의 맛과 멋이 가까이에 있는 즐거운 대학 생활입니다.</li>
+      <li>수업이 끝나면 바다로, 주말에는 오름으로 떠나 보세요.</li>
+      <li>여행지가 일상이 되는 특별한 캠퍼스 라이프입니다.</li>
+      <li>하루하루가 도전이고 추억이 되는 4년을 약속드립니다.</li>
+      <li>20대의 가장 빛나는 시간을 제주대학교에서 보내세요.</li>
+      <li>배움이 즐거워지는 곳, 성장이 눈에 보이는 곳입니다.</li>
+      <li>작은 꿈도 크게 키워 주는 든든한 울타리가 되겠습니다.</li>
+      <li>당신의 첫걸음을 가장 먼저 응원하는 대학입니다.</li>
+      <li>변화하는 시대에도 흔들리지 않는 기본기를 가르칩니다.</li>
+      <li>새로운 시대를 여는 창의적 인재가 이곳에서 자랍니다.</li>
+      <li>지역을 넘어 세계에 기여하는 대학으로 도약하겠습니다.</li>
+      <li>제주의 자부심, 대한민국의 자랑이 되겠습니다.</li>
+      <li>배움으로 제주를, 제주로 세상을 변화시키겠습니다.</li>
+      <li>제주대학교, 자연과 사람과 미래를 잇습니다.</li>
+      <li>지금, 제주대학교에서 당신의 이야기를 시작하세요!</li>
+    </ol>
+    <div class="counter" id="counter">
+      <div id="count">0</div>
+      <button id="btn">+2</button>
+    </div>
+  </main>
+
+  <footer class="card">
+    &copy; 2026 내 취향 카드
+  </footer>
+
   <script>
     let count = 0;
     const countEl = document.getElementById('count');
     document.getElementById('btn').addEventListener('click', () => {
       count += 2;
       countEl.textContent = count;
+    });
+  </script>
+
+  <div id="legend"></div>
+  <script>
+    // 화면 부품을 찾아 이름표를 붙인다 (원본 index.html 은 수정하지 않음)
+    const PARTS = [
+      { name: '헤더',   color: '#d6336c', sel: 'header' },
+      { name: '카드',   color: '#1c7ed6', sel: '.card' },
+      { name: '탭',     color: '#0b7285', sel: 'nav a' },
+      { name: '목록',   color: '#2f9e44', sel: 'ol, nav ul' },
+      { name: '버튼',   color: '#e8590c', sel: 'button' },
+      { name: '입력창', color: '#7048e8', sel: 'input, textarea, select' },
+    ];
+    const legend = document.getElementById('legend');
+    legend.innerHTML = '<b>부품 지도</b> (점선 박스 + 이름표)<br>';
+    PARTS.forEach(p => {
+      const els = document.querySelectorAll(p.sel);
+      els.forEach(el => {
+        el.classList.add('part');
+        // 한 요소에 이름표가 여러 개 겹치면 옆으로 나란히 배치
+        const offset = el.querySelectorAll(':scope > .tag').length;
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = p.name;
+        tag.style.setProperty('--c', p.color);
+        tag.style.left = (-4 + offset * 52) + 'px';
+        el.style.setProperty('--c', p.color);
+        el.prepend(tag);
+      });
+      legend.innerHTML += '<span class="dot" style="background:' + p.color + '"></span>' +
+        p.name + ' ' + els.length + '개' + (els.length ? '' : ' (이 페이지에는 없음)') + ' &nbsp; ';
     });
   </script>
 </body>
