@@ -124,6 +124,21 @@
       .layout { grid-template-columns: 1fr; }
       .grid { grid-template-columns: 1fr; }
     }
+    /* 에이전트 채팅 위젯 */
+    #chatFab {
+      position: fixed; right: 20px; bottom: 20px; z-index: 50;
+      width: auto; padding: 0.8rem 1.2rem; border-radius: 30px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    }
+    #chatPanel {
+      display: none; position: fixed; right: 20px; bottom: 80px; z-index: 50;
+      width: 380px; max-width: calc(100vw - 40px);
+      height: 520px; max-height: calc(100vh - 110px);
+      border-radius: 14px; overflow: hidden; background: #fff;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    }
+    #chatPanel.open { display: block; }
+    #chatPanel iframe { width: 100%; height: 100%; border: 0; }
   </style>
 </head>
 <body>
@@ -244,6 +259,25 @@
       <p>&copy; 2026 Jeju Specialty. 실제 판매처는 별도로 확인해 주세요.</p>
     </footer>
   </div>
+
+  <button id="chatFab">💬 에이전트와 채팅</button>
+  <div id="chatPanel"></div>
+
+  <script>
+    // 버튼을 누르면 agent.html 을 불러와 채팅 화면을 열고, 다시 누르면 닫는다
+    const chatFab = document.getElementById('chatFab');
+    const chatPanel = document.getElementById('chatPanel');
+    chatFab.addEventListener('click', () => {
+      if (!chatPanel.firstChild) {
+        const f = document.createElement('iframe');
+        f.src = 'agent.html';
+        f.title = '제주 특산물 에이전트';
+        chatPanel.append(f);
+      }
+      const open = chatPanel.classList.toggle('open');
+      chatFab.textContent = open ? '✖ 채팅 닫기' : '💬 에이전트와 채팅';
+    });
+  </script>
 
   <script>
     let likes = 0;
